@@ -1,11 +1,10 @@
-package com.cai.job.scheduler
+package com.cai.job
 
-import com.cai.job.scheduler.job.SimpleJob
+
 import org.junit.jupiter.api.Test
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -30,7 +29,7 @@ class JobSchedulerApplicationTests {
     void simpleJobTest(){
 
         JobDetail job = JobBuilder
-                .newJob(SimpleJob.class)
+                .newJob(com.cai.job.SimpleJob.class)
                 .withIdentity("job1","group1")
                 .build()
 
@@ -52,7 +51,7 @@ class JobSchedulerApplicationTests {
     void cronTest1(){
         before()
         JobDetail job = JobBuilder
-                .newJob(SimpleJob.class)
+                .newJob(com.cai.job.SimpleJob.class)
                 .withIdentity("job1","group1")
                 .build()
 

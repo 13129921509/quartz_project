@@ -1,4 +1,4 @@
-package com.cai.job.scheduler.job
+package com.cai.job
 
 import org.quartz.Job
 import org.quartz.JobExecutionContext

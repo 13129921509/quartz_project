@@ -1,40 +1,47 @@
-
 plugins {
     id 'org.springframework.boot' version '2.2.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id 'groovy'
 }
 
-apply plugin : 'java'
-apply plugin : 'idea'
-apply plugin : 'maven'
+allprojects {
+
+    apply plugin: 'groovy'
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'maven'
 
 
-group = 'com.cai'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+    group = 'com.cai'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = '1.8'
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.codehaus.groovy:groovy'
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    ext {
+        SPRING_BOOT_VERSION = '2.2.6.RELEASE'
+    }
+    dependencies {
+        compile "org.springframework.boot:spring-boot-starter:$SPRING_BOOT_VERSION"
+        compile("org.springframework.boot:spring-boot-starter-tomcat:$SPRING_BOOT_VERSION")
+        testCompile("org.springframework.boot:spring-boot-starter-test:$SPRING_BOOT_VERSION") {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+        compile 'org.codehaus.groovy:groovy-all:2.3.3'
+
+        compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
+        compile("org.springframework.boot:spring-boot-starter-web:$SPRING_BOOT_VERSION")
+        testCompile("org.springframework.boot:spring-boot-starter-test:$SPRING_BOOT_VERSION")
+        testCompile 'junit:junit'
+
+        compile group: 'org.gradle', name: 'gradle-core', version: '3.5'
     }
 
-    compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0',
-            "org.springframework.boot:spring-boot-starter-web"
-            "org.springframework.boot:spring-boot-starter-test"
-    compileClasspath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
-
-    compile group: 'org.gradle', name: 'gradle-core', version: '3.5'
+    repositories {
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url "http://repo.spring.io/libs-release" }
+    }
 }
 
 
-test {
-    useJUnitPlatform()
+dependencies {
+    compile project(':service')
 }
 
-repositories {
-    google()
-    maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
-}
