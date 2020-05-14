@@ -32,16 +32,23 @@ allprojects {
         testCompile 'junit:junit'
 
         compile group: 'org.gradle', name: 'gradle-core', version: '3.5'
+        compile group: 'com.cai', name: 'base-mongo', version: '1.0', changing: true
+
     }
 
     repositories {
         maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
         maven { url "http://repo.spring.io/libs-release" }
+        mavenLocal()
     }
 }
 
 
 dependencies {
     compile project(':service')
+    compile project(':controller')
 }
 
+test {
+    useJUnitPlatform()
+}

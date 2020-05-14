@@ -1,16 +1,20 @@
 package com.cai.job
 
-
+import org.junit.Before
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 import static org.quartz.CronScheduleBuilder.cronSchedule
 @SpringBootTest
+@RunWith(SpringJUnit4ClassRunner)
 class JobSchedulerApplicationTests {
 
     @Test
@@ -20,6 +24,7 @@ class JobSchedulerApplicationTests {
     SchedulerFactory sf
     Scheduler scheduler
 
+    @BeforeEach
     void before(){
         sf = new StdSchedulerFactory();
         scheduler = sf.getScheduler();
@@ -49,7 +54,6 @@ class JobSchedulerApplicationTests {
 
     @Test
     void cronTest1(){
-        before()
         JobDetail job = JobBuilder
                 .newJob(com.cai.job.SimpleJob.class)
                 .withIdentity("job1","group1")
