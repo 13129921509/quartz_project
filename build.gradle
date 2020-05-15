@@ -19,6 +19,7 @@ allprojects {
         SPRING_BOOT_VERSION = '2.2.6.RELEASE'
     }
     dependencies {
+        compile fileTree(dir: 'libs')
         compile "org.springframework.boot:spring-boot-starter:$SPRING_BOOT_VERSION"
         compile("org.springframework.boot:spring-boot-starter-tomcat:$SPRING_BOOT_VERSION")
         testCompile("org.springframework.boot:spring-boot-starter-test:$SPRING_BOOT_VERSION") {
@@ -60,14 +61,25 @@ allprojects {
     [compileJava,compileTestJava,javadoc]*.options*.encoding = 'UTF-8'
 
     jar.enabled=true
+
+    war {
+        baseName = project.name
+    }
+
+    task listJars(description: 'Display all compile jars.') {
+        doLast {
+            configurations.compile.each { File file -> println file.name }
+        }
+    }
 }
 
 
 dependencies {
-    compile project(':service')
-    compile project(':controller')
+    compile project(':job-service')
+    compile project(':job-controller')
 }
 
 test {
     useJUnitPlatform()
 }
+
