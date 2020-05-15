@@ -1,7 +1,7 @@
 package com.cai.scheduler.config.job
 
+import com.cai.general.util.http.HttpUtil
 import com.cai.scheduler.config.domain.UrlJobDomain
-import com.cai.scheduler.util.HttpUtil
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException

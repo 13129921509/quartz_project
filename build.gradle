@@ -9,7 +9,7 @@ allprojects {
     apply plugin: 'idea'
     apply plugin: 'java'
     apply plugin: 'maven'
-
+    apply plugin: 'war'
 
     group = 'com.cai'
     version = '0.0.1-SNAPSHOT'
@@ -33,7 +33,7 @@ allprojects {
 
         compile group: 'org.gradle', name: 'gradle-core', version: '3.5'
         compile group: 'com.cai', name: 'base-mongo', version: '1.0', changing: true
-
+        compile group: 'com.cai', name: 'base-general', version: '0.0.1', changing: true
     }
 
     repositories {
@@ -41,6 +41,25 @@ allprojects {
         maven { url "http://repo.spring.io/libs-release" }
         mavenLocal()
     }
+
+    def localRepositoryPath = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+
+    uploadArchives {
+        repositories {
+            mavenDeployer   {
+                repository(url: localRepositoryPath)
+                pom.project {
+                    name = project.name        // 当前项目名称
+                    version = project.version   //当前项目版本  0.0.1
+                    groupId = project.group     //  当前项目组  com.xxx
+                }
+            }
+        }
+    }
+
+    [compileJava,compileTestJava,javadoc]*.options*.encoding = 'UTF-8'
+
+    jar.enabled=true
 }
 
 
