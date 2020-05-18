@@ -1,7 +1,6 @@
 package com.cai.scheduler.config
 
 import com.cai.mongo.config.MongoConfiguration
-import org.junit.jupiter.api.BeforeEach
 import org.quartz.Scheduler
 import org.quartz.SchedulerFactory
 import org.quartz.impl.StdSchedulerFactory
@@ -29,10 +28,6 @@ class SchedulerConfig implements Ordered{
         return schedulerFactory.getScheduler()
     }
 
-    @Bean
-    RestTemplate restTemplate(){
-        return new RestTemplate()
-    }
     @Override
     int getOrder() {
         return Ordered.LOWEST_PRECEDENCE

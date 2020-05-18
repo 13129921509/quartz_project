@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.6.RELEASE'
+//    id 'org.springframework.boot' version '2.2.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 }
 
@@ -33,14 +33,15 @@ allprojects {
         testCompile 'junit:junit'
 
         compile group: 'org.gradle', name: 'gradle-core', version: '3.5'
-        compile group: 'com.cai', name: 'base-mongo', version: '1.0', changing: true
-        compile group: 'com.cai', name: 'base-general', version: '0.0.1', changing: true
+        compile group: 'com.cai', name: 'base-mongo', version: '1.0.0-releases', changing: true
+        compile group: 'com.cai', name: 'base-general', version: '0.0.2.3-snapshot', changing: true
     }
 
     repositories {
         maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url "http://47.102.222.185:30021/repository/maven-public" }
         maven { url "http://repo.spring.io/libs-release" }
-        mavenLocal()
+//        mavenLocal()
     }
 
     def localRepositoryPath = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath

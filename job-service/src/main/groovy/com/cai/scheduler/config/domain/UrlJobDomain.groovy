@@ -3,8 +3,9 @@ package com.cai.scheduler.config.domain
 import org.bson.Document
 
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-class UrlJobDomain extends Document{
+class UrlJobDomain implements Cloneable, Serializable{
 
     String url
 
@@ -14,7 +15,7 @@ class UrlJobDomain extends Document{
 
     String code
 
-    LocalDateTime created
+    String created = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
 
-    String createBy
+    String createBy = 'api'
 }

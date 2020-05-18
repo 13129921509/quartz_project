@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
-@RestController("scheduler/api")
-class SchedulerController {
+@RestController
+@RequestMapping("scheduler/api/job")
+class JobController {
     @Autowired
     SchedulerService schedulerService
 
-    @PostMapping('/add')
+    @RequestMapping(value = '/add', method = RequestMethod.POST)
     ResponseMessage addJob(@RequestBody Map data){
         return schedulerService.addJob(data)
     }

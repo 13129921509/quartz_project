@@ -1,7 +1,10 @@
 package com.cai.scheduler.config
 
+import com.cai.general.util.jackson.ConvertUtil
 import com.cai.scheduler.config.domain.UrlJobDomain
 import com.cai.scheduler.config.job.UrlJob
+import com.cai.scheduler.service.SchedulerService
+import org.checkerframework.checker.units.qual.A
 import org.quartz.CronScheduleBuilder
 import org.quartz.JobBuilder
 import org.quartz.JobDetail
@@ -17,6 +20,7 @@ class SchedulerActionImp implements SchedulerAction{
     @Autowired
     Scheduler scheduler
 
+    @Autowired SchedulerService sdrSvc
     @Override
     boolean addJob(String name, String cron, String url) {
         try{
@@ -41,7 +45,7 @@ class SchedulerActionImp implements SchedulerAction{
     JobDetail getJobDetail(String name ,String group, UrlJobDomain data){
         return JobBuilder
                 .newJob(UrlJob).withIdentity(name, group)
-                .usingJobData('data',data)
+                .usingJobData('data', ConvertUtil.JSON.writeValueAsString(data))
                 .build()
     }
 

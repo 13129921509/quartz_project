@@ -1,22 +1,21 @@
 package com.cai.scheduler.service
 
+import com.cai.general.util.http.HttpUtil
 import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
 import com.cai.scheduler.config.SchedulerAction
 import com.cai.scheduler.config.domain.UrlJobDomain
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import org.bson.Document
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-
+import com.cai.general.util.jackson.ConvertUtil
 @Service
 class SchedulerService {
-
-    private static ObjectMapper JSON = new ObjectMapper()
-    private static ObjectMapper XML = new ObjectMapper()
 
     @Autowired
     MongoService mongoSvc
@@ -34,7 +33,7 @@ class SchedulerService {
     def addJob(Map data){
         try{
             boolean result = false
-            UrlJobDomain domain = convertResult(data, UrlJobDomain.class)
+            UrlJobDomain domain = ConvertUtil.convertValue(data, UrlJobDomain.class)
             result = sdAct.addJob(domain.code as String, domain.cron as String, domain.url as String)
             if (result)
                 afterAddJob(domain)
@@ -45,20 +44,11 @@ class SchedulerService {
         }
     }
 
-    void afterAddJob(Document domain){
-        mongoSvc.insert(database, COLLECTION_NAME, domain)
-        log.info("new job : ${domain.get('code')} created and runing")
-    }
-
-    def <O,T> T convertResult(O value, Class<T> type, FormatType format = FormatType.JSON){
-        if (format == FormatType.JSON)
-            return JSON.convertValue(value, type)
-        else
-            return XML.convertValue(value, type)
+    def <T> void afterAddJob(T domain){
+        Map res = ConvertUtil.JSON.convertValue(domain, Map)
+        mongoSvc.insert(database, COLLECTION_NAME, res)
+        log.info("new job : ${res.get('code')} created and runing")
     }
 }
 
 
-enum FormatType{
-    JSON, XML
-}
