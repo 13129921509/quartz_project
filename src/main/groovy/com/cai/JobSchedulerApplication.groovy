@@ -8,12 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 @EnableScheduling
 @SpringBootApplication
-class JobSchedulerApplication extends SpringBootServletInitializer{
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return super.configure(JobSchedulerApplication.class)
-    }
+class JobSchedulerApplication{
 
     static void main(String[] args) {
         SpringApplication.run(JobSchedulerApplication, args)

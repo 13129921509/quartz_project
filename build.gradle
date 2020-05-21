@@ -3,13 +3,14 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 }
 
+apply plugin: 'war'
+
 allprojects {
 
     apply plugin: 'groovy'
     apply plugin: 'idea'
     apply plugin: 'java'
     apply plugin: 'maven'
-    apply plugin: 'war'
 
     group = 'com.cai'
     version = '0.0.1-SNAPSHOT'
@@ -48,12 +49,12 @@ allprojects {
 
     uploadArchives {
         repositories {
-            mavenDeployer   {
-                repository(url: localRepositoryPath)
-                pom.project {
-                    name = project.name        // 当前项目名称
-                    version = project.version   //当前项目版本  0.0.1
-                    groupId = project.group     //  当前项目组  com.xxx
+            mavenDeployer {
+                repository(url: "${nexusUrl}/repository/maven-releases/") {
+                    authentication(userName: nexusUsername, password: nexusPassword)
+                }
+                snapshotRepository(url: "${nexusUrl}/repository/maven-snapshots/") {
+                    authentication(userName: nexusUsername, password: nexusPassword)
                 }
             }
         }
@@ -72,6 +73,10 @@ allprojects {
             configurations.compile.each { File file -> println file.name }
         }
     }
+//
+//    task wrapper(type: Wrapper) {
+//        gradleVersion = '1.7'
+//    }
 }
 
 
@@ -82,5 +87,99 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+task webAppDir{
+    doLast {
+        println webAppDirName
+    }
+}
+
+webAppDirName = 'webfiles'
+
+war {
+    from 'static'
+}
+//
+//task wrapperOwn (type: Wrapper){
+//    distributionUrl = 'https://services.gradle.org/distributions/gradle-5.0-bin.zip'
+//    distributionPath = 'gradle-dists'
+//}
+//
+//wrapper.dependsOn wrapperOwn
+
+ext{
+    versionFile = file('version.properties')
+    versionProperties = new Properties()
+}
+
+task loadVersion {
+    println readVersion()
+    project.version = readVersion()
+}
+
+
+String readVersion(){
+
+    versionFile.withInputStream {stream->
+        versionProperties.load(stream)
+    }
+    versionProperties.remove('--')
+    return "${versionProperties.major}.${versionProperties.minor}${Boolean.valueOf(versionProperties.release as String) ? '' : '-SNAPSHOT'}"
+}
+
+//uploadArchives.dependsOn loadVersion
+
+//
+//task createDistribution(type: Zip){
+//    from war.outputs.files
+//
+//    from(sourceSets*.allSource){
+//        into 'src'
+//    }
+//
+//    from(rootDir){
+//        include versionFile.name
+//    }
+//}
+//
+//
+//task backupReleaseDistribution(type: Copy){
+//    from createDistribution.outputs.files
+//    into "$buildDir/backup"
+//}
+//
+//task release(dependsOn: backupReleaseDistribution){
+//    doLast {
+//        logger.quiet 'release the project'
+//    }
+//}
+
+ext.subJar = []
+
+subprojects {
+
+    task toJar(type: Jar){
+        from projectDir
+    }
+
+    task backupReleaseDistribution(type: Copy){
+//        from war.outputs.files
+        from toJar.outputs.files
+        subJar.add "$parent.buildDir/backup/${toJar.outputs.files[0].name}"
+        into "$parent.buildDir/backup"
+    }
+
+}
+
+
+task toWar(type: War){
+    manifest {
+        attributes.put('Class-Path', configurations.compile.collect { it.getName() }.join(' '))
+        attributes.put('Main-Class','com.cai.JobSchedulerApplication')
+    }
+    subJar.each {file->
+        classpath.toList().add(files(file)[0])
+    }
 }
 

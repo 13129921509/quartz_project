@@ -1,6 +1,6 @@
-package com.cai.job
+package com.cai.test
 
-import org.junit.Before
+
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.runner.RunWith
@@ -34,7 +34,7 @@ class JobSchedulerApplicationTests {
     void simpleJobTest(){
 
         JobDetail job = JobBuilder
-                .newJob(com.cai.job.SimpleJob.class)
+                .newJob(com.cai.test.SimpleJob.class)
                 .withIdentity("job1","group1")
                 .build()
 
@@ -55,7 +55,7 @@ class JobSchedulerApplicationTests {
     @Test
     void cronTest1(){
         JobDetail job = JobBuilder
-                .newJob(com.cai.job.SimpleJob.class)
+                .newJob(com.cai.test.SimpleJob.class)
                 .withIdentity("job1","group1")
                 .build()
 

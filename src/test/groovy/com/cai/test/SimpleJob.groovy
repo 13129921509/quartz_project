@@ -1,4 +1,4 @@
-package com.cai.job
+package com.cai.test
 
 import org.quartz.Job
 import org.quartz.JobExecutionContext
@@ -6,7 +6,6 @@ import org.quartz.JobExecutionException
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.atomic.AtomicInteger
 
 class SimpleJob implements Job {
 
