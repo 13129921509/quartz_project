@@ -6,3 +6,6 @@ mongo:
   username:
   authenticationDatabase:
   connectionPerHost: 5
+
+scheduler:
+  groupSplitNumber: 5

@@ -2,7 +2,8 @@ package com.cai.scheduler
 
 import com.cai.general.util.response.ResponseMessage
 import com.cai.general.util.response.ResponseMessageFactory
-import com.cai.scheduler.service.SchedulerService
+import com.cai.scheduler.config.job.UrlJob
+import com.cai.scheduler.service.UrlSchedulerService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -15,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("scheduler/api/job")
 class JobController {
     @Autowired
-    SchedulerService schedulerService
+    UrlSchedulerService schedulerService
 
     @RequestMapping(value = '/add', method = RequestMethod.POST)
     ResponseMessage addJob(@RequestBody Map data){
-        return schedulerService.addJob(data)
+        return schedulerService.addJob(data, UrlJob.class)
     }
 
     @RequestMapping(method = RequestMethod.GET, value = '/test')

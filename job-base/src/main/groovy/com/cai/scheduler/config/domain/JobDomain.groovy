@@ -5,9 +5,11 @@ import org.bson.Document
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class UrlJobDomain implements Cloneable, Serializable{
+class JobDomain implements Cloneable, Serializable{
 
-    String url
+    Map data
+
+    String group
 
     String name
 
@@ -18,4 +20,5 @@ class UrlJobDomain implements Cloneable, Serializable{
     String created = LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE)
 
     String createBy = 'api'
+
 }

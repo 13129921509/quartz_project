@@ -21,7 +21,9 @@ allprojects {
     }
     dependencies {
         compile fileTree(dir: 'libs')
-        compile "org.springframework.boot:spring-boot-starter:$SPRING_BOOT_VERSION"
+        compile("org.springframework.boot:spring-boot-starter:$SPRING_BOOT_VERSION"){
+            exclude group: "org.slf4j"
+        }
         compile("org.springframework.boot:spring-boot-starter-tomcat:$SPRING_BOOT_VERSION")
         testCompile("org.springframework.boot:spring-boot-starter-test:$SPRING_BOOT_VERSION") {
             exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -35,14 +37,14 @@ allprojects {
 
         compile group: 'org.gradle', name: 'gradle-core', version: '3.5'
         compile group: 'com.cai', name: 'base-mongo', version: '1.0.0-releases', changing: true
-        compile group: 'com.cai', name: 'base-general', version: '0.0.2.3-snapshot', changing: true
+        compile group: 'com.cai', name: 'base-general', version: '0.0.2.5-snapshot', changing: true
     }
 
     repositories {
         maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
         maven { url "http://47.102.222.185:30021/repository/maven-public" }
         maven { url "http://repo.spring.io/libs-release" }
-//        mavenLocal()
+        mavenLocal()
     }
 
     def localRepositoryPath = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
@@ -73,16 +75,14 @@ allprojects {
             configurations.compile.each { File file -> println file.name }
         }
     }
-//
-//    task wrapper(type: Wrapper) {
-//        gradleVersion = '1.7'
-//    }
+
 }
 
 
 dependencies {
     compile project(':job-service')
     compile project(':job-controller')
+    compile project(':job-base')
 }
 
 test {
@@ -173,13 +173,29 @@ subprojects {
 }
 
 
-task toWar(type: War){
-    manifest {
-        attributes.put('Class-Path', configurations.compile.collect { it.getName() }.join(' '))
-        attributes.put('Main-Class','com.cai.JobSchedulerApplication')
-    }
-    subJar.each {file->
-        classpath.toList().add(files(file)[0])
+//task toWar(type: War){
+//    manifest {
+//        attributes.put('Class-Path', configurations.compile.collect { it.getName() }.join(' '))
+//        attributes.put('Main-Class','com.cai.JobSchedulerApplication')
+//    }
+//    subJar.each {file->
+//        classpath.toList().add(files(file)[0])
+//    }
+//}
+
+
+gradle.taskGraph.whenReady {TaskExecutionGraph graph->
+    if (graph.hasTask('release')){
+        if (!version.release){
+            version.release = true
+            Properties properties = new Properties()
+            properties.load(versionFile.newReader('utf-8'))
+            properties.setProperty('release','true')
+            versionFile.delete()
+            versionFile.withWriter {writer->
+                properties.store(writer,null)
+            }
+        }
     }
 }
 

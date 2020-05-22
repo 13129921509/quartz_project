@@ -1,11 +1,12 @@
 package com.cai.test
 
-
+import com.cai.scheduler.JobController
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.runner.RunWith
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
@@ -24,11 +25,11 @@ class JobSchedulerApplicationTests {
     SchedulerFactory sf
     Scheduler scheduler
 
-    @BeforeEach
-    void before(){
-        sf = new StdSchedulerFactory();
-        scheduler = sf.getScheduler();
-    }
+//    @BeforeEach
+//    void before(){
+//        sf = new StdSchedulerFactory();
+//        scheduler = sf.getScheduler();
+//    }
 
     @Test
     void simpleJobTest(){
@@ -69,4 +70,21 @@ class JobSchedulerApplicationTests {
         Thread.sleep(90L * 1000L);
     }
 
+
+
+    @Autowired
+    JobController jobController
+
+    @Test
+    void test(){
+        Map data = new HashMap(){{
+            put('name','t_n')
+            put('cron','3/3 * * * * ?')
+            put('data',new HashMap(){{
+                put('url','http://test.com')
+            }})
+
+        }}
+        jobController.addJob(data)
+    }
 }

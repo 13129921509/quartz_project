@@ -1,13 +1,10 @@
 package com.cai.scheduler.service
 
-import com.cai.general.util.http.HttpUtil
 import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
-import com.cai.scheduler.config.SchedulerAction
-import com.cai.scheduler.config.domain.UrlJobDomain
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import org.bson.Document
+import com.cai.scheduler.config.ActionBuilder
+import com.cai.scheduler.config.domain.JobDomain
+import org.quartz.Job
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,26 +12,26 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import com.cai.general.util.jackson.ConvertUtil
 @Service
-class SchedulerService {
+class UrlSchedulerService{
 
     @Autowired
     MongoService mongoSvc
 
     @Autowired
-    SchedulerAction sdAct
+    ActionBuilder builder
 
     @Value('${mongo.database:scheduler}')
     String database
 
     static String COLLECTION_NAME = 'job_list'
 
-    Logger log = LoggerFactory.getLogger(SchedulerService.class)
+    Logger log = LoggerFactory.getLogger(UrlSchedulerService.class)
 
-    def addJob(Map data){
+    def <T extends Class<Job>> T addJob(Map data, T clazz){
         try{
             boolean result = false
-            UrlJobDomain domain = ConvertUtil.convertValue(data, UrlJobDomain.class)
-            result = sdAct.addJob(domain.code as String, domain.cron as String, domain.url as String)
+            JobDomain domain = ConvertUtil.convertValue(data, JobDomain.class)
+            result = builder.addJob(domain, clazz)
             if (result)
                 afterAddJob(domain)
             return ResponseMessageFactory.success()

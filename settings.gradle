@@ -1,3 +1,5 @@
 rootProject.name = 'job-scheduler'
 include 'job-service'
 include 'job-controller'
+include 'job-base'
+
