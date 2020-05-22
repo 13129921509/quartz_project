@@ -20,7 +20,7 @@ class JobController {
 
     @RequestMapping(value = '/add', method = RequestMethod.POST)
     ResponseMessage addJob(@RequestBody Map data){
-        return schedulerService.addJob(data, UrlJob.class)
+        return schedulerService.insertJob(data, UrlJob.class)
     }
 
     @RequestMapping(method = RequestMethod.GET, value = '/test')

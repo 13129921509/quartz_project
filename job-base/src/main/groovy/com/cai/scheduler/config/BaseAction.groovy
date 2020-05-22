@@ -7,6 +7,8 @@ import org.quartz.Trigger
 
 abstract class BaseAction <T extends JobDomain>{
 
+    abstract boolean addJob(JobDomain domain, Class<Job> jobClass)
+
     abstract void build(T domain, Class<Job> jobClass)
 
     abstract Trigger getTrigger(T domain)

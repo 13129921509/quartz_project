@@ -1,5 +1,6 @@
 package com.cai.test
 
+import com.cai.JobSchedulerApplication
 import com.cai.scheduler.JobController
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 import static org.quartz.CronScheduleBuilder.cronSchedule
-@SpringBootTest
+@SpringBootTest(classes = JobSchedulerApplication.class)
 @RunWith(SpringJUnit4ClassRunner)
 class JobSchedulerApplicationTests {
 

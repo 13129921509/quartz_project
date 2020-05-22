@@ -9,21 +9,25 @@ import org.quartz.JobDetail
 import org.quartz.Scheduler
 import org.quartz.Trigger
 import org.quartz.TriggerBuilder
+import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationContextAware
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.stereotype.Component
+
+import javax.annotation.Resource
 
 @Component
 class ActionBuilder extends BaseAction<JobDomain>{
 
-    static ActionBuilder action = new ActionBuilder()
-
     @Autowired
     Scheduler scheduler
 
-    static boolean addJob(JobDomain domain, Class<Job> jobClass) {
+    boolean addJob(JobDomain domain, Class<Job> jobClass) {
         try{
             domain.group = JobGroupSequenceGenerator.nextGroup()
-            action.build(domain)
+            build(domain, jobClass)
             return true
         }catch(Throwable t){
             t.printStackTrace()
@@ -43,7 +47,7 @@ class ActionBuilder extends BaseAction<JobDomain>{
     JobDetail getJobDetail(JobDomain domain, Class<Job> jobClass){
         return JobBuilder
                 .newJob(jobClass).withIdentity(domain.name, domain.group)
-                .usingJobData('data', ConvertUtil.JSON.writeValueAsString(domain.url))
+                .usingJobData('data', ConvertUtil.JSON.writeValueAsString(domain.data))
                 .build()
     }
 

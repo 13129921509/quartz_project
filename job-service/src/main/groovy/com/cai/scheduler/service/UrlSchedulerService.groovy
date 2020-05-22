@@ -1,8 +1,10 @@
 package com.cai.scheduler.service
 
+import com.cai.general.util.response.ResponseMessage
 import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
 import com.cai.scheduler.config.ActionBuilder
+import com.cai.scheduler.config.BaseSchedulerService
 import com.cai.scheduler.config.domain.JobDomain
 import org.quartz.Job
 import org.slf4j.Logger
@@ -12,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import com.cai.general.util.jackson.ConvertUtil
 @Service
-class UrlSchedulerService{
+class UrlSchedulerService extends BaseSchedulerService{
 
     @Autowired
     MongoService mongoSvc
@@ -27,7 +29,13 @@ class UrlSchedulerService{
 
     Logger log = LoggerFactory.getLogger(UrlSchedulerService.class)
 
-    def <T extends Class<Job>> T addJob(Map data, T clazz){
+    @Override
+    ResponseMessage beforeInsert() {
+        return ResponseMessageFactory.error(null)
+    }
+
+    @Override
+    def <T extends Class<Job>> ResponseMessage insertJob(Map data, T clazz){
         try{
             boolean result = false
             JobDomain domain = ConvertUtil.convertValue(data, JobDomain.class)
