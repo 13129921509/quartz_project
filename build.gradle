@@ -36,8 +36,8 @@ allprojects {
         testCompile 'junit:junit'
 
         compile group: 'org.gradle', name: 'gradle-core', version: '3.5'
-        compile group: 'com.cai', name: 'base-mongo', version: '1.0.0-releases', changing: true
-        compile group: 'com.cai', name: 'base-general', version: '0.0.2.5-snapshot', changing: true
+        compile group: 'com.cai', name: 'base-mongo', version: '1.0.0-releases'
+        compile group: 'com.cai', name: 'base-general', version: '0.0.2.5-RELEASE'
     }
 
     repositories {
