@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 class UrlJob implements Job{
 
     void execute(JobExecutionContext context) throws JobExecutionException {
-        Map data = ConvertUtil.JSON.readValue(context.getJobDetail().getJobDataMap().get('data'), Map.class)
-        HttpUtil.postToEntity(data.url, Object)
+        Map data = ConvertUtil.stringConvertValue(context.getJobDetail().getJobDataMap().data as String, Map.class)
+        HttpUtil.postToEntity(data.url as String, Map.class)
     }
 }

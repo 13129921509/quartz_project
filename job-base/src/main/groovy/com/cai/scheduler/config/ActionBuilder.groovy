@@ -47,7 +47,7 @@ class ActionBuilder extends BaseAction<JobDomain>{
     JobDetail getJobDetail(JobDomain domain, Class<Job> jobClass){
         return JobBuilder
                 .newJob(jobClass).withIdentity(domain.name, domain.group)
-                .usingJobData('data', ConvertUtil.JSON.writeValueAsString(domain.data))
+                .usingJobData('data', ConvertUtil.JSON.writeValueAsString(domain))
                 .build()
     }
 
