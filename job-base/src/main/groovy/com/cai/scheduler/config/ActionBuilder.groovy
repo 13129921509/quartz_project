@@ -1,6 +1,8 @@
 package com.cai.scheduler.config
 
 import com.cai.general.util.jackson.ConvertUtil
+import com.cai.general.util.response.ResponseMessage
+import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.scheduler.config.domain.JobDomain
 import org.quartz.CronScheduleBuilder
 import org.quartz.Job
@@ -27,7 +29,10 @@ class ActionBuilder extends BaseAction<JobDomain>{
     boolean addJob(JobDomain domain, Class<Job> jobClass) {
         try{
             domain.group = JobGroupSequenceGenerator.nextGroup()
-            build(domain, jobClass)
+            ResponseMessage rsp = build(domain, jobClass)
+            if (!rsp.isSuccess){
+                return false
+            }
             return true
         }catch(Throwable t){
             t.printStackTrace()
@@ -36,11 +41,17 @@ class ActionBuilder extends BaseAction<JobDomain>{
     }
 
     @Override
-    void build(JobDomain domain, Class<Job> jobClass){
-        JobDetail jobDetail = getJobDetail(domain,jobClass)
-        Trigger trigger = getTrigger(domain)
-        scheduler.scheduleJob(jobDetail, trigger)
-        scheduler.start()
+    ResponseMessage build(JobDomain domain, Class<Job> jobClass){
+        try{
+            JobDetail jobDetail = getJobDetail(domain,jobClass)
+            Trigger trigger = getTrigger(domain)
+            scheduler.scheduleJob(jobDetail, trigger)
+            scheduler.start()
+            return ResponseMessageFactory.success()
+        }catch(Throwable t){
+            t.printStackTrace()
+            return ResponseMessageFactory.error("启动job失败")
+        }
     }
 
     @Override

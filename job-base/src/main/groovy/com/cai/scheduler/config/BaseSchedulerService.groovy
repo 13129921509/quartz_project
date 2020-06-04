@@ -3,6 +3,7 @@ package com.cai.scheduler.config
 import com.cai.general.util.response.ResponseMessage
 import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
+import com.cai.scheduler.config.core.JobBeanService
 import com.cai.scheduler.config.domain.JobDomain
 import org.quartz.Job
 import org.quartz.Scheduler
@@ -28,6 +29,9 @@ abstract class BaseSchedulerService<T extends JobDomain> {
     @Value('${mongo.database:scheduler}')
     String database
 
+    @Autowired
+    JobBeanService jbSvc
+
     ResponseMessage beforeInsertJob(T domain){
         return ResponseMessageFactory.success()
     }
@@ -42,6 +46,7 @@ abstract class BaseSchedulerService<T extends JobDomain> {
             rsp = afterInsertJob(domain)
             if (!rsp.isSuccess)
                 return rsp
+            jbSvc.insertJobBean(domain.entityDefinition.table, domain.entityDefinition.jobBean.name, domain.class.name)
             return ResponseMessageFactory.success()
         }catch(Throwable t){
             t.printStackTrace()
