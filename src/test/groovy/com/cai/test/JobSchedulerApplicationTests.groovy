@@ -1,7 +1,7 @@
 package com.cai.test
 
 import com.cai.JobSchedulerApplication
-import com.cai.scheduler.JobController
+import com.cai.scheduler.JobUrlController
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.runner.RunWith
@@ -74,17 +74,15 @@ class JobSchedulerApplicationTests {
 
 
     @Autowired
-    JobController jobController
+    JobUrlController jobController
 
     @Test
     void test(){
         Map data = new HashMap(){{
-            put('name','t_n')
+            put('name','t_n_2')
+            put('code','t_n_code')
             put('cron','3/3 * * * * ?')
-            put('data',new HashMap(){{
-                put('url','http://test.com')
-            }})
-
+            put('url','http://test.com')
         }}
         jobController.addJob(data)
     }

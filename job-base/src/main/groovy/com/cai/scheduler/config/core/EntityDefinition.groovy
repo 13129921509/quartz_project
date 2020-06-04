@@ -4,4 +4,5 @@ class EntityDefinition {
 
     String table
 
+    Class jobBean
 }

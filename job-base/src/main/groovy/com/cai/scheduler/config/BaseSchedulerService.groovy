@@ -5,6 +5,7 @@ import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
 import com.cai.scheduler.config.domain.JobDomain
 import org.quartz.Job
+import org.quartz.Scheduler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Primary
@@ -14,18 +15,45 @@ import org.springframework.stereotype.Service
 @Service
 abstract class BaseSchedulerService<T extends JobDomain> {
 
+
     @Autowired
     MongoService mongoSvc
 
     @Autowired
     ActionBuilder builder
 
+    @Autowired
+    Scheduler scheduler
+
     @Value('${mongo.database:scheduler}')
     String database
 
-    abstract ResponseMessage beforeInsertJob(T domain)
+    ResponseMessage beforeInsertJob(T domain){
+        return ResponseMessageFactory.success()
+    }
 
-    abstract ResponseMessage insertJob(T domain)
+    ResponseMessage insertJob(T domain){
+        ResponseMessage rsp
+        try{
+            rsp = beforeInsertJob(domain)
+            if (!rsp.isSuccess)
+                return rsp
+            builder.addJob(domain, domain.entityDefinition.jobBean)
+            rsp = afterInsertJob(domain)
+            if (!rsp.isSuccess)
+                return rsp
+            return ResponseMessageFactory.success()
+        }catch(Throwable t){
+            t.printStackTrace()
+            return ResponseMessageFactory.error(t.message)
+        }
+    }
 
-    abstract ResponseMessage afterInsertJob(T domain)
+    ResponseMessage afterInsertJob(T domain){
+        return ResponseMessageFactory.success()
+    }
+
+    boolean hasJob(T domain){
+        scheduler.getCurrentlyExecutingJobs()
+    }
 }
