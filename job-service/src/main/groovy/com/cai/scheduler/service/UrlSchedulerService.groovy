@@ -5,23 +5,29 @@ import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
 import com.cai.scheduler.config.ActionBuilder
 import com.cai.scheduler.config.BaseSchedulerService
+import com.cai.scheduler.config.contains.BaseMessage
 import com.cai.scheduler.config.domain.JobDomain
 import com.cai.scheduler.config.job.UrlJob
 import com.cai.scheduler.domain.UrlJobDomain
+import com.google.common.collect.Lists
+import com.mongodb.client.FindIterable
 import org.bson.Document
 import org.quartz.Job
+import org.quartz.JobKey
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+
+import java.text.MessageFormat
+
 import static org.springframework.data.mongodb.core.query.Criteria.*
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
 import com.cai.general.util.jackson.ConvertUtil
 
-import javax.print.Doc
 
 @Service
 class UrlSchedulerService extends BaseSchedulerService<UrlJobDomain>{
@@ -30,7 +36,16 @@ class UrlSchedulerService extends BaseSchedulerService<UrlJobDomain>{
 
     @Override
     ResponseMessage beforeInsertJob(UrlJobDomain domain) {
-        return ResponseMessageFactory.success("beforeInsertJob ${domain.url}")
+        // 此处若是update，则停止现有相关domain job
+        try{
+            if (hasCurrentlyExecuting(domain).isSuccess){
+                scheduler.deleteJob(JobKey.jobKey(domain.name, domain.group))
+            }
+            return ResponseMessageFactory.success()
+        }catch(Throwable t){
+            t.printStackTrace()
+            return ResponseMessageFactory.error(BaseMessage.ERROR.JOB_ERROR_MSG_0000)
+        }
     }
 
     @Deprecated
@@ -63,6 +78,53 @@ class UrlSchedulerService extends BaseSchedulerService<UrlJobDomain>{
         log.info("new job : ${res.get('code')} created and runing")
         return ResponseMessageFactory.success()
     }
+
+    /**
+     * 根据jobName，返回当前运行job中是否存在对应job
+     * @param jobName
+     * @return
+     */
+    ResponseMessage hasExecutingJob(String jobName){
+        List<UrlJobDomain> results = getJobDomainsByName(jobName, UrlJobDomain)
+        if (results.size() > 0)
+            return this.hasCurrentlyExecuting(results[0])
+        else
+            return ResponseMessageFactory.success(false)
+    }
+
+    ResponseMessage stopAndRemoveJob(String jobName){
+        List<UrlJobDomain> domains = getJobDomainsByName(jobName, UrlJobDomain)
+        if (domains.size() > 0)
+            return deleteJob(domains[0])
+        else
+            return ResponseMessageFactory.error(MessageFormat.format(BaseMessage.ERROR.JOB_ERROR_MSG_0003,jobName))
+    }
+
+    ResponseMessage stopAndDeadJob(String jobName){
+        try{
+            List<UrlJobDomain> domains = getJobDomainsByName(jobName, UrlJobDomain)
+            domains.each {
+                stopJob(it)
+                mongoSvc.updateMany(
+                        it.DEFINE.table,
+                        Query.query(
+                                where('name').is(it.name)
+                                        .and('code').is(it.code)
+                                        .and('group').is(it.group)
+                        ),
+                        Update.update('isAlive',false)
+                )
+            }
+            return ResponseMessageFactory.success()
+        }catch(Throwable t){
+            t.printStackTrace()
+            return ResponseMessageFactory.error(BaseMessage.ERROR.JOB_ERROR_MSG_0000)
+        }
+
+    }
+
+
+
 }
 
 

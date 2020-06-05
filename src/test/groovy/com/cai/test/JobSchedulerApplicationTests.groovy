@@ -79,11 +79,18 @@ class JobSchedulerApplicationTests {
     @Test
     void test(){
         Map data = new HashMap(){{
-            put('name','t_n_2')
+            put('name','t_n_4')
             put('code','t_n_code')
             put('cron','3/3 * * * * ?')
-            put('url','http://test.com')
+            put('url','http://test2.com')
+            put('isAlive', true)
+            put('group', '0')
         }}
         jobController.addJob(data)
+    }
+
+    @Test
+    void hasJob(){
+
     }
 }

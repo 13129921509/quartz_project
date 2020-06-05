@@ -3,6 +3,7 @@ package com.cai.scheduler.config
 import com.cai.general.util.jackson.ConvertUtil
 import com.cai.general.util.response.ResponseMessage
 import com.cai.general.util.response.ResponseMessageFactory
+import com.cai.scheduler.config.contains.BaseMessage
 import com.cai.scheduler.config.domain.JobDomain
 import org.quartz.CronScheduleBuilder
 import org.quartz.Job
@@ -50,7 +51,7 @@ class ActionBuilder extends BaseAction<JobDomain>{
             return ResponseMessageFactory.success()
         }catch(Throwable t){
             t.printStackTrace()
-            return ResponseMessageFactory.error("启动job失败")
+            return ResponseMessageFactory.error(BaseMessage.ERROR.JOB_ERROR_MSG_0002)
         }
     }
 
