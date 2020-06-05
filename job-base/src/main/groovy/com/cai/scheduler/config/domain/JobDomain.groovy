@@ -21,6 +21,8 @@ class JobDomain implements Cloneable, Serializable{
 
     String createBy = 'api'
 
+    boolean isAlive = true
+
     static EntityDefinition entityDefinition
 
     static EntityDefinition define(Map data){

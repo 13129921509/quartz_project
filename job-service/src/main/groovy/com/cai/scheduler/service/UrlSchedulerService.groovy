@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import static org.springframework.data.mongodb.core.query.Criteria.*
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
 import com.cai.general.util.jackson.ConvertUtil
@@ -55,7 +56,7 @@ class UrlSchedulerService extends BaseSchedulerService<UrlJobDomain>{
             mongoSvc.updateMany(
                     domain.DEFINE.table
                     , new Query(
-                        Criteria.where('code').is(domain.code)
+                        where('code').is(domain.code)
                     )
                     , Update.fromDocument(ConvertUtil.JSON.convertValue(domain, Document))
             )
