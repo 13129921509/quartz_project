@@ -1,5 +1,6 @@
 package com.cai.scheduler.service
 
+import com.cai.general.core.Session
 import com.cai.general.util.response.ResponseMessage
 import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
@@ -92,10 +93,10 @@ class UrlSchedulerService extends BaseSchedulerService<UrlJobDomain>{
             return ResponseMessageFactory.success(false)
     }
 
-    ResponseMessage stopAndRemoveJob(String jobName){
+    ResponseMessage stopAndRemoveJob(Session sess, String jobName){
         List<UrlJobDomain> domains = getJobDomainsByName(jobName, UrlJobDomain)
         if (domains.size() > 0)
-            return deleteJob(domains[0])
+            return deleteJob(sess, domains[0])
         else
             return ResponseMessageFactory.error(MessageFormat.format(BaseMessage.ERROR.JOB_ERROR_MSG_0003,jobName))
     }

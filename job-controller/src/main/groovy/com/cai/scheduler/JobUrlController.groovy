@@ -1,5 +1,7 @@
 package com.cai.scheduler
 
+import com.cai.general.core.BaseController
+import com.cai.general.core.Session
 import com.cai.general.util.jackson.ConvertUtil
 import com.cai.general.util.response.ResponseMessage
 import com.cai.general.util.response.ResponseMessageFactory
@@ -18,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
+import javax.servlet.http.HttpServletRequest
+
 @RestController
 @RequestMapping("scheduler/api/job/url/")
-class JobUrlController {
+class JobUrlController extends BaseController{
     @Autowired
     UrlSchedulerService schedulerService
 
@@ -41,8 +45,9 @@ class JobUrlController {
     }
 
     @DeleteMapping(value = "/delete/{jobName}")
-    ResponseMessage deleteJob(@PathVariable String jobName){
-        return schedulerService.stopAndRemoveJob(jobName)
+    ResponseMessage deleteJob(HttpServletRequest request, @PathVariable String jobName){
+        Session sess = getSession(request)
+        return schedulerService.stopAndRemoveJob(sess, jobName)
     }
 
     @GetMapping(value = "/stop/{jobName}")

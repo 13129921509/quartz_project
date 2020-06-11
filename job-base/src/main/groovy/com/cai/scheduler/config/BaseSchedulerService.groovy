@@ -1,6 +1,8 @@
 package com.cai.scheduler.config
 
+import com.cai.general.core.Session
 import com.cai.general.util.jackson.ConvertUtil
+import com.cai.general.util.log.ErrorLogManager
 import com.cai.general.util.response.ResponseMessage
 import com.cai.general.util.response.ResponseMessageFactory
 import com.cai.mongo.service.MongoService
@@ -45,6 +47,9 @@ abstract class BaseSchedulerService<T extends JobDomain> {
     @Autowired
     JobBeanService jbSvc
 
+    @Autowired
+    ErrorLogManager errorLogManager
+
     ResponseMessage beforeInsertJob(T domain){
         return ResponseMessageFactory.success()
     }
@@ -63,6 +68,7 @@ abstract class BaseSchedulerService<T extends JobDomain> {
             return ResponseMessageFactory.success()
         }catch(Throwable t){
             t.printStackTrace()
+
             return ResponseMessageFactory.error(t.message)
         }
     }
@@ -91,19 +97,23 @@ abstract class BaseSchedulerService<T extends JobDomain> {
         return ResponseMessageFactory.error()
     }
 
-    ResponseMessage deleteJob(T domain){
-        // 1.停止所有相关domain job
-        stopJob(domain)
-        // 2.删除库中存放数据
-        Document filter = new Document()
-        filter.append('name', domain.name)
-        filter.append('group', domain.group)
-        filter.append('code', domain.code)
-        DeleteResult result = mongoSvc.delete(domain.entityDefinition.table as String, filter)
-        if (result.deletedCount > 0)
-            return ResponseMessageFactory.success()
-        else
-            return ResponseMessageFactory.error(MessageFormat.format(BaseMessage.ERROR.JOB_ERROR_MSG_0001, domain.code))
+    ResponseMessage deleteJob(Session sess, T domain){
+        try{
+            // 1.停止所有相关domain job
+            stopJob(domain)
+            // 2.删除库中存放数据
+            Document filter = new Document()
+            filter.append('name', domain.name)
+            filter.append('group', domain.group)
+            filter.append('code', domain.code)
+            DeleteResult result = mongoSvc.delete(domain.entityDefinition.table as String, filter)
+            if (result.deletedCount > 0)
+                return ResponseMessageFactory.success()
+            else
+                return ResponseMessageFactory.error(MessageFormat.format(BaseMessage.ERROR.JOB_ERROR_MSG_0001, domain.code))
+        }catch(Throwable t){
+            errorLogManager.logException(sess, t)
+        }
     }
 
 

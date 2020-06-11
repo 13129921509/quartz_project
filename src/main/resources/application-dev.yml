@@ -9,3 +9,9 @@ mongo:
 
 scheduler:
   groupSplitNumber: 5
+
+app:
+  name: job-scheduelr
+  error-log:
+      collection: log_exception
+      expireDay: 30
