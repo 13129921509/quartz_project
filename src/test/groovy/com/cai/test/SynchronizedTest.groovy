@@ -6,6 +6,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
 import java.util.concurrent.Callable
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import java.util.concurrent.LinkedBlockingQueue
@@ -21,7 +22,6 @@ import java.util.stream.IntStream
  */
 @RunWith(SpringJUnit4ClassRunner)
 class SynchronizedTest {
-
     @Test
     void latch(){
 
@@ -29,6 +29,7 @@ class SynchronizedTest {
 
     @Test
     void semaphoreTest(){
+        CountDownLatch releaseLatch = new CountDownLatch(1)
         BoundSizeSet<String> bset = new BoundSizeSet<>(10)
         ThreadPoolExecutor executor = new ThreadPoolExecutor(15,15,Long.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>())
         Set<Future<Boolean>> futureSet = []
@@ -40,6 +41,18 @@ class SynchronizedTest {
                 }
             })
             futureSet.add(task)
+            if (it == 14)
+                releaseLatch.countDown()
+        }
+        releaseLatch.await()
+        IntStream.range(0,5).forEach{it->
+            executor.execute(new Runnable() {
+                @Override
+                void run() {
+                    bset.remove(it as String)
+                }
+            })
+            null
         }
         printResult(futureSet)
         null
