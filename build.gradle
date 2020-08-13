@@ -47,7 +47,6 @@ allprojects {
         maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
         maven { url "http://47.102.222.185:30021/repository/maven-public" }
         maven { url "http://repo.spring.io/libs-release" }
-        mavenLocal()
     }
 
     def localRepositoryPath = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
@@ -79,6 +78,10 @@ allprojects {
         }
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
 }
 
 
@@ -86,10 +89,6 @@ dependencies {
     compile project(':job-service')
     compile project(':job-controller')
     compile project(':job-base')
-}
-
-test {
-    useJUnitPlatform()
 }
 
 task webAppDir{
@@ -186,19 +185,19 @@ subprojects {
 //    }
 //}
 
-
-gradle.taskGraph.whenReady {TaskExecutionGraph graph->
-    if (graph.hasTask('release')){
-        if (!version.release){
-            version.release = true
-            Properties properties = new Properties()
-            properties.load(versionFile.newReader('utf-8'))
-            properties.setProperty('release','true')
-            versionFile.delete()
-            versionFile.withWriter {writer->
-                properties.store(writer,null)
-            }
-        }
-    }
-}
+//
+//gradle.taskGraph.whenReady {TaskExecutionGraph graph->
+//    if (graph.hasTask('release')){
+//        if (!version.release){
+//            version.release = true
+//            Properties properties = new Properties()
+//            properties.load(versionFile.newReader('utf-8'))
+//            properties.setProperty('release','true')
+//            versionFile.delete()
+//            versionFile.withWriter {writer->
+//                properties.store(writer,null)
+//            }
+//        }
+//    }
+//}
 
