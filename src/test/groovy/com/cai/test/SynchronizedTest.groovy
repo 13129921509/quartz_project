@@ -7,18 +7,25 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import java.util.concurrent.Callable
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.Semaphore
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.IntStream
 
 /**
  * 闭锁相关的一些测试
  * #CountDownLatch
  * #Semaphore
+ * #FutureTask
+ * #CycleBarrier
+ * #ThreadPoolExecutor
+ * #自旋
+ *
  */
 @RunWith(SpringJUnit4ClassRunner)
 class SynchronizedTest {
@@ -29,7 +36,15 @@ class SynchronizedTest {
 
     @Test
     void semaphoreTest(){
+//        AtomicInteger countDownState = new AtomicInteger(0)
         CountDownLatch releaseLatch = new CountDownLatch(1)
+        CyclicBarrier threeBarrier = new CyclicBarrier(3, new Runnable() {
+            @Override
+            void run() {
+                println "-----------已放出批次------"
+            }
+        })
+        // 我尼玛为啥用FutureTask 还他么上CycleBarrier，脑残吧
         BoundSizeSet<String> bset = new BoundSizeSet<>(10)
         ThreadPoolExecutor executor = new ThreadPoolExecutor(15,15,Long.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>())
         Set<Future<Boolean>> futureSet = []
@@ -37,18 +52,30 @@ class SynchronizedTest {
             FutureTask<Boolean> task = executor.submit(new Callable<Boolean>() {
                 @Override
                 Boolean call() throws Exception {
-                    return bset.add(it as String)
+                    try{
+                        threeBarrier.await()
+                        println "$it 正在添加----"
+                        return bset.add(it as String)
+                    }finally{
+                        if (it == 14){
+                            releaseLatch.countDown()
+                        }
+                    }
                 }
             })
             futureSet.add(task)
-            if (it == 14)
-                releaseLatch.countDown()
         }
+        println "先堵住，不要消费----"
         releaseLatch.await()
+//        while (countDownState.get() != 15){ // 此地方不能准确在子线程内部全部执行完毕时判断是否可以消费，需要标志位
+//            //自旋
+//        }
+        println "可以开始消费了----"
         IntStream.range(0,5).forEach{it->
             executor.execute(new Runnable() {
                 @Override
                 void run() {
+                    println "$it 正在消费----"
                     bset.remove(it as String)
                 }
             })
@@ -95,8 +122,10 @@ class BoundSizeSet<T> {
     boolean add(T val){
         try{
             if (!semaphore.tryAcquire(5L, TimeUnit.SECONDS)){
+                println "error | cause: 尝试获取资源到规定时间，依旧无法获取, params: $val"
                 return false
             }
+            Thread.sleep(3000L)
             pset.add(val)
             return true
         }catch(InterruptedException e){
@@ -107,9 +136,9 @@ class BoundSizeSet<T> {
 
     boolean remove(T val){
         try{
-            pset.remove(val)
+            boolean res = pset.remove(val)
             semaphore.release()
-            return true
+            return res
         }catch(InterruptedException e){
             e.printStackTrace()
             return false
