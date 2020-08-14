@@ -1,5 +1,6 @@
 package com.cai.test
 
+import ch.qos.logback.core.util.TimeUtil
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
@@ -14,18 +15,18 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.Semaphore
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
 import java.util.stream.IntStream
 
 /**
- * 闭锁相关的一些测试
+ * 并发相关的一些测试
  * #CountDownLatch
  * #Semaphore
  * #FutureTask
  * #CycleBarrier
  * #ThreadPoolExecutor
  * #自旋
- *
+ * #ReentrantLock
  */
 @RunWith(SpringJUnit4ClassRunner)
 class SynchronizedTest {
@@ -99,6 +100,31 @@ class SynchronizedTest {
         }
 
     }
+
+    /**
+     * 采用闭包形式使用并发lock 内部使用ReentrantLock
+     */
+    @Test
+    void customerLock(){
+        CustomerLock lock = CustomerLock.generate(5, TimeUnit.SECONDS)
+        Thread[] ts = new Thread[3]
+
+        for (int i = 0 ; i < 3 ; i++){
+            ts[i] = new Thread(new Runnable() {
+                @Override
+                void run() {
+                    lock.lock {
+                        println "${Thread.currentThread().name} lock!!!"
+                        Thread.sleep(10000L)
+                    }
+                }
+            })
+            ts[i].start()
+        }
+        for (int i = 0 ; i < 3 ; i++){
+            ts[i].join()
+        }
+    }
 }
 
 
@@ -144,4 +170,36 @@ class BoundSizeSet<T> {
             return false
         }
     }
+}
+
+class CustomerLock{
+
+    private ReentrantLock lock = new ReentrantLock(false)
+
+    private TimeUnit timeUnit
+
+    private long time
+
+    CustomerLock(TimeUnit timeUnit, Long time) {
+        this.timeUnit = timeUnit
+        this.time = time
+    }
+
+    static CustomerLock generate(Long time, TimeUnit util){
+        return new CustomerLock(util, time)
+    }
+    void lock(Closure closure) {
+        try {
+            if (lock.tryLock(time, timeUnit)) {
+                closure.call()
+            }else{
+                throw new IllegalStateException("check error!!!")
+            }
+        }catch(Throwable t) {
+            t.printStackTrace()
+        }finally {
+            lock.unlock()
+        }
+    }
+
 }
